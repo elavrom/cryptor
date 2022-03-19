@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Elavrom\Cryptor;
 
@@ -32,16 +32,18 @@ class Cryptor
     private function __construct() {
     }
 
-    public static function getInstance(string $key, string $method = 'AES-256-CBC', string $hashHmacAlgo = 'sha256'): self
+    public static function getInstance(string $key, string $method = 'aes-256-cbc', string $hashHmacAlgo = 'sha256'): self
     {
         if (null === self::$_instance) {
             self::$_instance = new self();
         }
 
+        $method = strtolower($method);
         if (!in_array($method, openssl_get_cipher_methods(), true)) {
             throw new \InvalidArgumentException("'$method' is not a valid cipher method.");
         }
 
+        $hashHmacAlgo = strtolower($hashHmacAlgo);
         if (!in_array($hashHmacAlgo, hash_hmac_algos(), true)) {
             throw new \InvalidArgumentException("'$hashHmacAlgo' is not a valid hmac hash algorithm.");
         }
