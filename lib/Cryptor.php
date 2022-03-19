@@ -2,6 +2,9 @@
 
 namespace Elavrom\Cryptor;
 
+use Exception;
+use InvalidArgumentException;
+
 class Cryptor
 {
     private static ?self $_instance = null;
@@ -15,9 +18,9 @@ class Cryptor
 
     /**
      * Cipher method to be used for data encryption.
-     * Can be overriden but must be a valid openssl cipher method.
+     * Can be overridden but must be a valid openssl cipher method.
      *
-     * @see openssl_get_cipher_methods() pour lister les méthodes disponibles.
+     * @see openssl_get_cipher_methods() Lists available cipher methods
      * @see Cryptor::encrypt()
      * @see Cryptor::decrypt()
      */
@@ -40,12 +43,12 @@ class Cryptor
 
         $method = strtolower($method);
         if (!in_array($method, openssl_get_cipher_methods(), true)) {
-            throw new \InvalidArgumentException("'$method' is not a valid cipher method.");
+            throw new InvalidArgumentException("'$method' is not a valid cipher method.");
         }
 
         $hashHmacAlgo = strtolower($hashHmacAlgo);
         if (!in_array($hashHmacAlgo, hash_hmac_algos(), true)) {
-            throw new \InvalidArgumentException("'$hashHmacAlgo' is not a valid hmac hash algorithm.");
+            throw new InvalidArgumentException("'$hashHmacAlgo' is not a valid hmac hash algorithm.");
         }
 
         self::$_key = $key;
@@ -60,7 +63,7 @@ class Cryptor
      * @param string|null $method [Optional] Cipher Method. Defaults to Cryptor::$_method
      * @return string Pseudo-random bytes
      *
-     * @throws \Exception
+     * @throws Exception
      * @see Cryptor::getIVLength
      * @see Cryptor::_method
      */
@@ -89,11 +92,11 @@ class Cryptor
      * @param bool $urlSafe Defines if resulting base64 should be URL safe or not (see RFC : https://datatracker.ietf.org/doc/html/rfc4648#page-7 )
      * @return string Base64 of encrypted data.
      *
-     * @throws \Exception
+     * @throws Exception
      * @see Cryptor::generateIV()
      * @see Cryptor::decrypt()
      */
-    public function encrypt(mixed $data, $secret = null, ?string $method = null, bool $urlSafe = false): string
+    public function encrypt($data, $secret = null, ?string $method = null, bool $urlSafe = false): string
     {
         $secret = $secret ?? self::$_key;
         $method = $method ?? self::$_method;
@@ -112,7 +115,7 @@ class Cryptor
     /**
      * Encrypts $ivData with a $secret and a $method
      *
-     * @param string $ivData Data to decrypt, expecting base64(IVDATA) (The result of this encrypt method).
+     * @param string $ivData Data to decrypt, expecting base64(IV DATA) (The result of this encrypt method).
      * @param null $secret [Optional] Secret to symmetrically encrypt data with. Default to Cryptor::$_key
      * @param string|null $method [Optional] Cipher Method. Defaults to Cryptor::$_method
      * @param bool $check [Optional] Prevents infinite loop with isEncrypted method. Should be set by you.
@@ -123,7 +126,7 @@ class Cryptor
      * @see Cryptor::getIVLength()
      * @see Cryptor::isEncrypted()
      */
-    public function decrypt(string $ivData, $secret = null, ?string $method = null, bool $check = true): bool|string
+    public function decrypt(string $ivData, $secret = null, ?string $method = null, bool $check = true)
     {
         $secret = $secret ?? self::$_key;
         $method = $method ?? self::$_method;
@@ -203,7 +206,7 @@ class Cryptor
      */
     private function b64_decode(string $data): string
     {
-        if (str_contains($data, '-') || str_contains($data, '_')) {
+        if (false !== strpos($data, '-') || false !== strpos($data, '_')) {
             $data = str_replace(['-', '_'], ['+', '/'], $data);
         }
         return base64_decode($data);

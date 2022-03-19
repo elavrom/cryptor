@@ -3,13 +3,14 @@
 namespace Elavrom\Cryptor\Tests;
 
 use Elavrom\Cryptor\Cryptor;
+use Exception;
 use PHPUnit\Framework\TestCase;
 
 class CryptorTest extends TestCase
 {
     public const TEST_KEY = 'secret123';
     public const TEST_METHOD = 'AES-256-CBC';
-    public const TEST_HASH_HMAC_ALHO = 'sha256';
+    public const TEST_HASH_HMAC_ALGO = 'sha256';
 
     public function testGetIVSize(): void
     {
@@ -17,6 +18,9 @@ class CryptorTest extends TestCase
         $this->assertEquals(16, $cryptor->getIVLength(self::TEST_METHOD));
     }
 
+    /**
+     * @throws Exception
+     */
     public function testGenerateIV(): void
     {
         // Only assert length since IV is pseudo-random
@@ -27,6 +31,9 @@ class CryptorTest extends TestCase
         $this->assertEquals(16, strlen($iv));
     }
 
+    /**
+     * @throws Exception
+     */
     public function testEncryptAndDecrypt(): void
     {
         $cryptor = Cryptor::getInstance(self::TEST_KEY);
@@ -40,6 +47,9 @@ class CryptorTest extends TestCase
         $this->assertNotEquals($str, $cryptor->decrypt($encrypted, 'wrongsecret'));
     }
 
+    /**
+     * @throws Exception
+     */
     public function testEncryptAndDecryptUrlSafe(): void
     {
         $cryptor = Cryptor::getInstance(self::TEST_KEY);
@@ -48,8 +58,8 @@ class CryptorTest extends TestCase
         $encrypted = $cryptor->encrypt($str, self::TEST_KEY, self::TEST_METHOD, true);
         $decrypted = $cryptor->decrypt($encrypted, self::TEST_KEY);
 
-        $this->assertFalse(str_contains($encrypted, '+'));
-        $this->assertFalse(str_contains($encrypted, '/'));
+        $this->assertFalse(strpos($encrypted, '+'));
+        $this->assertFalse(strpos($encrypted, '/'));
         $this->assertEquals($str, $decrypted);
         $this->assertNotEquals($str, $encrypted);
         $this->assertNotEquals($str, $cryptor->decrypt($encrypted, 'wrongsecret'));
