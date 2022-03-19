@@ -1,6 +1,7 @@
 {
     "name": "elavrom/cryptor",
     "description": "A simple helper class for encrypt/decrypt and hmac signing data",
+    "version": "0.1.0",
     "type": "library",
     "license": "MIT",
     "autoload": {
