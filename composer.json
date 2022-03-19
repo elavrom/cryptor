@@ -1,12 +1,17 @@
 {
     "name": "elavrom/cryptor",
     "description": "A simple helper class for encryption, decryption, and hmac signing. ",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "type": "library",
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Elavrom\\Cryptor\\": "lib/"
+            "Cryptor\\": "lib/Cryptor"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Cryptor\\Tests\\": "tests/"
         }
     },
     "authors": [
