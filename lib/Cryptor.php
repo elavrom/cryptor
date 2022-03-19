@@ -163,14 +163,15 @@ class Cryptor
 
     /**
      * HMAC Signs data
-     * @param string $data Data to sign
+     * @param string $dataOrFile Data (or file path as the var name says) to sign
      * @param string|null $secret [Optional] Secret to symmetrically encrypt data with. Default to Cryptor::$_key
      * @param string|null $hashHmacAlgo [Optional] Cipher Method. Defaults to Cryptor::$_hashHmacAlgo
      * @return string Data signature
      */
-    public function sign(string $data, ?string $secret = null, string $hashHmacAlgo = null): string
+    public function sign(string $dataOrFile, ?string $secret = null, string $hashHmacAlgo = null): string
     {
-        return hash_hmac($hashHmacAlgo ?? self::$_hashHmacAlgo, $data, $secret ?? self::$_key);
+        $function = is_file($dataOrFile) && is_readable($dataOrFile) ? 'hash_hmac_file' : 'hash_hmac';
+        return $function($hashHmacAlgo ?? self::$_hashHmacAlgo, $dataOrFile, $secret ?? self::$_key);
     }
 
     /**

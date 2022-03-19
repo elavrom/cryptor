@@ -71,6 +71,7 @@ class CryptorTest extends TestCase
         $str = 'Hello ! I\'m a string!';
 
         $this->assertEquals('167580a537bfcb06f43358f8422ac08ecfb520d67b9ea699b053b9499e102340', $cryptor->sign($str));
+        $this->assertEquals('3819c21c2e24d2974c44e79de6dbe6e31367a67df90840973a31950484b69700', $cryptor->sign(dirname(__FILE__, 2).'/LICENSE'));
     }
 
     public function testCheckSignature(): void
