@@ -1,0 +1,21 @@
+{
+    "name": "elavrom/cryptor",
+    "description": "A simple helper class for encrypt/decrypt and hmac signing data",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Elavrom\\Cryptor\\": "lib/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Romain Valeye",
+            "email": "romain@valeye.fr"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "ext-openssl": "*"
+    }
+}
