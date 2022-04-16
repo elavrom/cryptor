@@ -113,7 +113,7 @@ class Cryptor
      * Encrypts $data with a $secret and a $method.
      *
      * @param mixed $data Data to encrypt
-     * @param null $secret [Optional] Secret to symmetrically encrypt data with. Default to Cryptor::$_encryptionSecret
+     * @param string|null $secret [Optional] Secret to symmetrically encrypt data with. Default to Cryptor::$_encryptionSecret
      * @param string|null $cipherMethod [Optional] Cipher Method. Defaults to Cryptor::$_cipherMethod
      * @param bool $urlSafe Defines if resulting base64 should be URL safe or not (see RFC : https://datatracker.ietf.org/doc/html/rfc4648#page-7 )
      * @return string Base64 of encrypted data.
@@ -122,8 +122,12 @@ class Cryptor
      * @see Cryptor::generateIV()
      * @see Cryptor::decrypt()
      */
-    public function encrypt($data, $secret = null, ?string $cipherMethod = null, bool $urlSafe = false): string
+    public function encrypt($data, ?string $secret = null, ?string $cipherMethod = null, bool $urlSafe = false): ?string
     {
+        if (null === $data) {
+            return null;
+        }
+
         $secret = $secret ?? self::$_encryptionSecret;
         $cipherMethod = $cipherMethod ?? self::$_cipherMethod;
 
@@ -141,8 +145,8 @@ class Cryptor
     /**
      * Encrypts $ivData with a $secret and a $method
      *
-     * @param string $ivData Data to decrypt, expecting base64(IV DATA) (The result of this encrypt method).
-     * @param null $secret [Optional] Secret to symmetrically encrypt data with. Default to Cryptor::$_encryptionSecret
+     * @param string|null $ivData Data to decrypt, expecting base64(IV DATA) (The result of this encrypt method).
+     * @param string|null $secret [Optional] Secret to symmetrically encrypt data with. Default to Cryptor::$_encryptionSecret
      * @param string|null $cipherMethod [Optional] Cipher Method. Defaults to Cryptor::$_cipherMethod
      * @param bool $check [Optional] Prevents infinite loop with isEncrypted method. Should be set by you.
      * @return bool|string Decrypted data, or false on failure.
@@ -152,8 +156,12 @@ class Cryptor
      * @see Cryptor::getIVLength()
      * @see Cryptor::isEncrypted()
      */
-    public function decrypt(string $ivData, $secret = null, ?string $cipherMethod = null, bool $check = true)
+    public function decrypt(?string $ivData, ?string $secret = null, ?string $cipherMethod = null, bool $check = true)
     {
+        if (null === $ivData) {
+            return null;
+        }
+
         $secret = $secret ?? self::$_encryptionSecret;
         $cipherMethod = $cipherMethod ?? self::$_cipherMethod;
 
@@ -190,7 +198,7 @@ class Cryptor
     /**
      * HMAC Signs data
      * @param string $dataOrFile Data (or file path as the var name says) to sign
-     * @param string|null $secret [Optional] Secret to symmetrically encrypt data with. Default to Cryptor::$_signingSecret
+     * @param string|null $secret [Optional] Secret to sign data with. Default to Cryptor::$_signingSecret
      * @param string|null $hashHmacAlgo [Optional] Cipher Method. Defaults to Cryptor::$_hashHmacAlgo
      * @return string Data signature
      */
@@ -204,7 +212,7 @@ class Cryptor
      * Checks HMAC signature's validity
      * @param string $signature The signature to check
      * @param string $data The data that has been signed
-     * @param string|null $secret [Optional] Secret to symmetrically encrypt data with. Default to Cryptor::$_signingSecret
+     * @param string|null $secret [Optional] Secret to sign data with. Default to Cryptor::$_signingSecret
      * @param string|null $hashHmacAlgo [Optional] Cipher Method. Defaults to Cryptor::$_hashHmacAlgo
      * @return bool True if $signature is valid, false otherwise
      */
