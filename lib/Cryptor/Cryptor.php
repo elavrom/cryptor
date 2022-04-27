@@ -7,21 +7,15 @@ use InvalidArgumentException;
 
 class Cryptor
 {
-    private static ?self $_instance = null;
-
     /**
      * The key that will be used for encryption/decryption. MUST BE defined by you !
-     *
-     * @see Cryptor::getInstance()
      */
-    private static ?string $_encryptionSecret = null;
+    private ?string $_encryptionSecret = null;
 
     /**
      * The key that will be used for HMAC signature. MUST BE defined by you !
-     *
-     * @see Cryptor::getInstance()
      */
-    private static ?string $_signingSecret = null;
+    private ?string $_signingSecret = null;
 
     /**
      * Cipher method to be used for data encryption.
@@ -31,57 +25,32 @@ class Cryptor
      * @see Cryptor::encrypt()
      * @see Cryptor::decrypt()
      */
-    private static string $_cipherMethod;
+    private string $_cipherMethod;
 
     /**
      * Hashing algorithm for HMAC signature
      * @see Cryptor::sign()
      */
-    private static string $_hashHmacAlgo;
+    private string $_hashHmacAlgo;
 
     /**
-     * Constructor with default methods. Can be overridden by providing values in {@see Cryptor::getInstance()} method.
+     * Constructor.
      */
-    private function __construct(string $encryptionSecret, string $signingSecret) {
-        self::$_encryptionSecret = $encryptionSecret;
-        self::$_signingSecret = $signingSecret;
-        self::$_cipherMethod = 'aes-256-cbc';
-        self::$_hashHmacAlgo = 'sha256';
-    }
+    public function __construct(string $encryptionSecret, string $signingSecret, string $cipherMethod = 'aes-256-cbc', $hashHmacAlgo = 'sha256') {
+        $this->_encryptionSecret = $encryptionSecret;
+        $this->_signingSecret = $signingSecret;
 
-    public static function getInstance(?string $encryptionSecret = null, ?string $signingSecret = null, ?string $cipherMethod = null, ?string $hashHmacAlgo = null): self
-    {
-        if (null === self::$_instance) {
-            if (null === $encryptionSecret || null === $signingSecret) {
-                throw new InvalidArgumentException('$encryptionSecret and $signingSecret are required if Cryptor hasn\'t been instantiated yet.');
-            }
-            self::$_instance = new self($encryptionSecret, $signingSecret);
+        $cipherMethod = strtolower($cipherMethod);
+        if (!in_array($cipherMethod, openssl_get_cipher_methods(), true)) {
+            throw new InvalidArgumentException("'$cipherMethod' is not a valid cipher method.");
         }
-
-        if (null !== $encryptionSecret) {
-            self::$_encryptionSecret = $encryptionSecret;
+        $this->_cipherMethod = $cipherMethod;
+        
+        $hashHmacAlgo = strtolower($hashHmacAlgo);
+        if (!in_array($hashHmacAlgo, hash_hmac_algos(), true)) {
+            throw new InvalidArgumentException("'$hashHmacAlgo' is not a valid hmac hash algorithm.");
         }
-        if (null !== $signingSecret) {
-            self::$_signingSecret = $signingSecret;
-        }
-
-        if (null !== $cipherMethod) {
-            $cipherMethod = strtolower($cipherMethod);
-            if (!in_array($cipherMethod, openssl_get_cipher_methods(), true)) {
-                throw new InvalidArgumentException("'$cipherMethod' is not a valid cipher method.");
-            }
-            self::$_cipherMethod = $cipherMethod;
-        }
-
-        if (null !== $hashHmacAlgo) {
-            $hashHmacAlgo = strtolower($hashHmacAlgo);
-            if (!in_array($hashHmacAlgo, hash_hmac_algos(), true)) {
-                throw new InvalidArgumentException("'$hashHmacAlgo' is not a valid hmac hash algorithm.");
-            }
-            self::$_hashHmacAlgo = $hashHmacAlgo;
-        }
-
-        return self::$_instance;
+        $this->_hashHmacAlgo = $hashHmacAlgo;
     }
 
     /**
@@ -95,7 +64,7 @@ class Cryptor
      */
     public function generateIV(?string $cipherMethod = null): string
     {
-        return random_bytes($this->getIVLength($cipherMethod ?? self::$_cipherMethod));
+        return random_bytes($this->getIVLength($cipherMethod ?? $this->_cipherMethod));
     }
 
     /**
@@ -106,7 +75,7 @@ class Cryptor
      */
     public function getIVLength(?string $cipherMethod = null): int
     {
-        return openssl_cipher_iv_length($cipherMethod ?? self::$_cipherMethod);
+        return openssl_cipher_iv_length($cipherMethod ?? $this->_cipherMethod);
     }
 
     /**
@@ -128,8 +97,8 @@ class Cryptor
             return null;
         }
 
-        $secret = $secret ?? self::$_encryptionSecret;
-        $cipherMethod = $cipherMethod ?? self::$_cipherMethod;
+        $secret = $secret ?? $this->_encryptionSecret;
+        $cipherMethod = $cipherMethod ?? $this->_cipherMethod;
 
         // Do not encrypt already encrypted data
         if ($this->isEncrypted($data, $secret, $cipherMethod)) {
@@ -162,8 +131,8 @@ class Cryptor
             return null;
         }
 
-        $secret = $secret ?? self::$_encryptionSecret;
-        $cipherMethod = $cipherMethod ?? self::$_cipherMethod;
+        $secret = $secret ?? $this->_encryptionSecret;
+        $cipherMethod = $cipherMethod ?? $this->_cipherMethod;
 
         if ($check && !$this->isEncrypted($ivData, $secret, $cipherMethod)) {
             return $ivData;
@@ -205,7 +174,7 @@ class Cryptor
     public function sign(string $dataOrFile, ?string $secret = null, string $hashHmacAlgo = null): string
     {
         $function = is_file($dataOrFile) && is_readable($dataOrFile) ? 'hash_hmac_file' : 'hash_hmac';
-        return $function($hashHmacAlgo ?? self::$_hashHmacAlgo, $dataOrFile, $secret ?? self::$_signingSecret);
+        return $function($hashHmacAlgo ?? $this->_hashHmacAlgo, $dataOrFile, $secret ?? $this->_signingSecret);
     }
 
     /**

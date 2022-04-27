@@ -17,7 +17,7 @@ class CryptorTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        self::$cryptor = Cryptor::getInstance(
+        self::$cryptor = new Cryptor(
             self::TEST_ENCRYPTION_SECRET,
             self::TEST_SIGNING_SECRET,
             self::TEST_CIPHER_METHOD,
