@@ -23,7 +23,7 @@ openssl rand -hex 32
 ### Encryption / Decryption
 
 ```php
-$cryptor = Cryptor::getInstance($_ENV['MY_ENCRYPTION_SECRET'], $_ENV['MY_SIGNING_SECRET']);
+$cryptor = new Cryptor($_ENV['MY_ENCRYPTION_SECRET'], $_ENV['MY_SIGNING_SECRET']);
 $myData = '{"a": "This is a sample value."}';
 
 $encrypted = $cryptor->encrypt($myData);
@@ -43,7 +43,7 @@ $encrypted = $cryptor->encrypt($myData, null, null, true);
 ### HMAC Signing / Checking
 
 ```php
-$cryptor = Cryptor::getInstance($_ENV['MY_ENCRYPTION_SECRET'], $_ENV['MY_SIGNING_SECRET']);
+$cryptor = new Cryptor($_ENV['MY_ENCRYPTION_SECRET'], $_ENV['MY_SIGNING_SECRET']);
 $myData = '{"a": "This is a sample value."}';
 
 // You can simply sign your data with : 
