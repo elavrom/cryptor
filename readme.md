@@ -5,9 +5,6 @@ A simple helper class for encryption, decryption, and hmac signing.
 
 ## Get Started
 
-Cryptor class is a singleton.
-In order to use it, you have to call the static method `Cryptor::getInstance()`.
-
 For the first instantiation, you have to provide two secret keys that will be your passphrases.
 
 It is recommended that you generate your own secret keys to encrypt and sign data, and keep it safe.
